@@ -23,12 +23,14 @@ namespace Labb2test.Customers
             set { _password = value; }
         }
 
-
         public Customer(string username, string password)
         {
             this.Username = username;
             this.Password = password;
         }
-        
+        public override string ToString()
+        {
+            return String.Format($"{Username}鯨{Password}鯨");
+        }
     }
 }

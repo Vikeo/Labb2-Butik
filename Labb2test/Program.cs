@@ -14,7 +14,6 @@ namespace Labb2test
         private static string _loggedInCustomer = "";
         private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-
         enum MenuState
         {
             Quit, Welcome, LoggedIn, ShoppingCart

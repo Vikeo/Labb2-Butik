@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Labb2test.Customers
 {
-    class Bronze
+    class Bronze : Customer
     {
+        public Bronze(string username, string password) : base(username, password)
+        {
+    
+        }   
     }
 }

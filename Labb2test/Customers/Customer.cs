@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Labb2test.Customers
 {
-    class Customer
+    abstract class Customer
     {
         private string _username;
 

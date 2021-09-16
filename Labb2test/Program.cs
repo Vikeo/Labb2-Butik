@@ -1,8 +1,8 @@
 ﻿using Labb2test.Customers;
+using Labb2test.Products;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Labb2test
 {
@@ -11,12 +11,14 @@ namespace Labb2test
         private static SessionState _sessionState;
         private static MenuState _menuState;
         private static List<Customer> _customers = new List<Customer>();
-        private static string _loggedInCustomer = "";
+        private static string _loggedInCustomer = "N/A";
         private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        private static List<Product> _products = Product.GenerateListOfProducts();
+        private static List<Product> _userCart = new List<Product>();
 
         enum MenuState
         {
-            Quit, Welcome, LoggedIn, ShoppingCart
+            Quit, Welcome, LoggedIn, Buying
         }
         enum SessionState
         {
@@ -45,64 +47,12 @@ namespace Labb2test
                 {
                     RenderLoggedinMenu();
                 }
-            }
-        }
 
-        private static void FetchSavedCustomers()
-        {
-            using (var sr = new StreamReader(Path.Combine(_docPath, "Customers.txt")))
-            {
-                var text = sr.ReadToEnd();
-                Console.WriteLine(text);
-                string[] splitText = text.Split('鯨');
-                for (int i = 0; i < splitText.Length - 1; i += 2)
+                while (_menuState == MenuState.Buying)
                 {
-                    string savedUsername = splitText[i];
-                    string savedPassword = splitText[i + 1];
-                    var savedCustomer = new Customer(savedUsername, savedPassword);
-                    _customers.Add(savedCustomer);
-                }
-                foreach (var customer in _customers)
-                {
-                    Console.WriteLine(customer.Username + " " + customer.Password);
+                    RenderBuyMenu();
                 }
             }
-        }
-
-        private static void RenderLoggedinMenu()
-        {
-            Console.Clear();
-            Console.WriteLine($"Du är inloggad som \"{_loggedInCustomer}\"\n--------------------------------------------------------\n1. Handla\n2. Se kundvagnen\n3. Gå till kassan\n4. Logga ut");
-            switch (Console.ReadLine())
-            {
-                case "1":
-                    
-                    break;
-
-                case "2":
-                    
-                    break;
-
-                case "3":
-                    
-                    break;
-
-                case "4":
-                    LogoutCustomer();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        private static void LogoutCustomer()
-        {
-            Console.Clear();
-            _loggedInCustomer = "";
-            _menuState = MenuState.Welcome;
-            Console.WriteLine("Du loggades ut");
-            Console.ReadLine();
         }
 
         private static void RenderWelcomeMenu()
@@ -130,6 +80,112 @@ namespace Labb2test
                 default:
                     break;
             }
+        }
+
+        private static void RenderLoggedinMenu()
+        {
+            Console.Clear();
+            Console.WriteLine($"Du är inloggad som \"{_loggedInCustomer}\"\n--------------------------------------------------------\n1. Handla\n2. Se kundvagnen\n3. Gå till kassan\n4. Logga ut");
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    _menuState = MenuState.Buying;
+                    break;
+
+                case "2":
+                    PrintCart();
+                    break;
+
+                case "3":
+                    Checkout();
+                    break;
+
+                case "4":
+                    LogoutCustomer();
+                    break;
+    
+                default:
+                    break;
+            }
+        }
+   
+        private static void RenderBuyMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("Handla\nVälj något som du vill lägga till i kundvagnen. En vara åt gången.");
+            int itemNumber = 0;
+            foreach (var product in _products)
+            {
+                itemNumber++;
+                Console.WriteLine($"{itemNumber}. {product}");
+            };
+            
+            Console.WriteLine($"{itemNumber + 1}. Gå tillbaka");
+            string userInput = Console.ReadLine();
+            switch (userInput)
+            {
+                case "1":
+                    AddProductToCard(userInput);
+                    break;
+
+                case "2":
+                    AddProductToCard(userInput);
+                    break;
+
+                case "3":
+                    AddProductToCard(userInput);
+                    break;
+
+                case "4":
+                    AddProductToCard(userInput);
+                    break;
+
+                case "5":
+                    _menuState = MenuState.LoggedIn;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private static void Checkout()
+        {
+            Console.Clear();
+            if (_userCart.Count != 0)
+            {
+                Console.WriteLine("Tack för köpet!");
+                Console.ReadLine();
+                QuitApplication();
+                //Avsluta eller skicka tillbaka???
+            }
+            else
+            {
+                Console.WriteLine("Lägg till något i kundvagnen först");
+                Console.ReadLine();
+            }
+        }
+
+        private static void PrintCart()
+        {
+            Console.Clear();
+            var itemCounter = 0;
+            var sumPrice = 0L;
+            foreach (var product in _userCart)
+            {
+                Console.WriteLine(product);
+                itemCounter++;
+                sumPrice += product.ProductPrice;
+            }
+            Console.WriteLine($"\nDen totala summan är: {sumPrice}:-\n\nTryck ENTER för att gå tillbaka.");
+            Console.ReadLine();
+        }
+
+        private static void AddProductToCard(string userInput)
+        {
+            Product productToCart;
+            productToCart = new Product(_products[int.Parse(userInput) - 1].ProductName, _products[int.Parse(userInput) - 1].ProductPrice);
+            _userCart.Add(productToCart);
         }
 
         private static void LoginCustomer()
@@ -205,30 +261,20 @@ namespace Labb2test
             }
         }
 
-        private static void QuitApplication()
+        private static void FetchSavedCustomers()
         {
-            Console.Clear();
-            
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "Customers.txt")))
+            using (var sr = new StreamReader(Path.Combine(_docPath, "Customers.txt")))
             {
-                foreach (var customer in _customers)
-                    outputFile.Write(customer.ToString());
+                var text = sr.ReadToEnd();
+                string[] splitText = text.Split('鯨');
+                for (int i = 0; i < splitText.Length - 1; i += 2)
+                {
+                    string savedUsername = splitText[i];
+                    string savedPassword = splitText[i + 1];
+                    var savedCustomer = new Customer(savedUsername, savedPassword);
+                    _customers.Add(savedCustomer);
+                }
             }
-
-            //OSÄKER OM DETTA BEHÖVS
-            /*string path = Path.Combine(docPath, "WriteLines.txt");
-
-            int fileNumber = 0;
-
-            while (File.Exists(path))
-            {
-                path = Path.Combine(docPath, $"WriteLines({fileNumber}).txt");
-                fileNumber++;
-            }*/
-
-            _sessionState = SessionState.Terminate;
-            _menuState = MenuState.Quit;
-            Console.WriteLine("\n-----------Applikationen avslutades-----------");
         }
 
         public static void GenerateCustomer()
@@ -267,6 +313,40 @@ namespace Labb2test
             Console.WriteLine($"{newCustomer.Username} har blivit registrerad som en ny kund.");
             Console.ReadLine();
             return;
+        }
+
+        private static void LogoutCustomer()
+        {
+            Console.Clear();
+            _loggedInCustomer = "N/A";
+            _menuState = MenuState.Welcome;
+            Console.WriteLine("Du loggades ut");
+            Console.ReadLine();
+        }
+
+        private static void QuitApplication()
+        {
+            Console.Clear();
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "Customers.txt")))
+            {
+                foreach (var customer in _customers)
+                    outputFile.Write(customer.ToString());
+            }
+
+            //OSÄKER OM DETTA BEHÖVS
+            /*string path = Path.Combine(docPath, "WriteLines.txt");
+
+            int fileNumber = 0;
+
+            while (File.Exists(path))
+            {
+                path = Path.Combine(docPath, $"WriteLines({fileNumber}).txt");
+                fileNumber++;
+            }*/
+            _userCart.Clear();
+            _sessionState = SessionState.Terminate;
+            _menuState = MenuState.Quit;
+            Console.WriteLine("\n-----------Applikationen avslutades-----------");
         }
     }
 }

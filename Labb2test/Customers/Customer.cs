@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Labb2test.Customers
 {
@@ -42,7 +38,7 @@ namespace Labb2test.Customers
         {
             return String.Format($"{Username}鯨{Password}鯨{Membership}鯨");
         }
-        
+
         //Skriva med om det är bronze, silver eller guld här eller i de egna klasserna?
         public virtual double CalculateSumBasedOnMembership(double sumInSEK)
         {

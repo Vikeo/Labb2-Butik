@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Labb2test.Products
 {
@@ -28,8 +24,8 @@ namespace Labb2test.Products
         }
         public static List<Product> GenerateListOfProducts()
         {
-            return new List<Product>() { new Product("Penna", 5), 
-                                         new Product("Annanas", 20), 
+            return new List<Product>() { new Product("Penna", 5),
+                                         new Product("Annanas", 20),
                                          new Product("Äpple", 4),
                                          new Product("Penna (lång)", 30)};
         }

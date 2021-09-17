@@ -67,7 +67,7 @@ namespace Labb2test
                     break;
 
                 case "2":
-                    
+
                     GenerateCustomer();
                     break;
 
@@ -101,12 +101,12 @@ namespace Labb2test
                 case "4":
                     LogoutCustomer();
                     break;
-    
+
                 default:
                     break;
             }
         }
-   
+
         private static void RenderBuyMenu()
         {
             Console.Clear();
@@ -117,7 +117,7 @@ namespace Labb2test
                 itemNumber++;
                 Console.WriteLine($"{itemNumber}. {product}");
             };
-            
+
             Console.WriteLine($"{itemNumber + 1}. Gå tillbaka");
             string userInput = Console.ReadLine();
             switch (userInput)
@@ -173,7 +173,7 @@ namespace Labb2test
             Console.WriteLine($"I Yen: {ConvertSumPriceInJPY(_sumPriceInSEK)}");
 
             var calculatedSum = 0d;
-            
+
             calculatedSum = _loggedInCustomer.CalculateSumBasedOnMembership(_sumPriceInSEK);
 
             Console.WriteLine($"\nMed {_loggedInCustomer.Membership}-medlemskap kostar det: {calculatedSum}kr");
@@ -216,11 +216,11 @@ namespace Labb2test
             bool usernameMatch = false;
             while (tryAgain)
             {
-            Console.Clear();
-            Console.WriteLine("Logga in");
-            Console.Write("Skriv in ditt användarnamn: ");
-            string loginUsername = Console.ReadLine();
-            
+                Console.Clear();
+                Console.WriteLine("Logga in");
+                Console.Write("Skriv in ditt användarnamn: ");
+                string loginUsername = Console.ReadLine();
+
                 foreach (var customer in _allCustomers)
                 {
                     if (loginUsername == customer.Username)
@@ -299,7 +299,7 @@ namespace Labb2test
                     string savedUsername = splitText[i];
                     string savedPassword = splitText[i + 1];
                     Membership savedMembership = Enum.Parse<Membership>(splitText[i + 2]);
-                    
+
                     switch (savedMembership)
                     {
                         case Membership.NonMember:
@@ -324,7 +324,7 @@ namespace Labb2test
                         default:
                             break;
                     }
-                    
+
                 }
             }
         }
@@ -338,7 +338,7 @@ namespace Labb2test
 
             Console.Write("Lösenord: ");
             string newPassword = Console.ReadLine().Replace(" ", "");
-            
+
             //bool success = Enum.TryParse<Membership>(Console.ReadLine(), out newMembership);
             //if (!success)
             //{
@@ -378,7 +378,7 @@ namespace Labb2test
                 Console.ReadLine();
                 return;
             }
-            
+
             bool isDuplicateUsername = CheckIfUsernameIsTaken(newUsername);
             if (!isDuplicateUsername)
             {

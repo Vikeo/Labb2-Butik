@@ -15,24 +15,23 @@ namespace Labb2test.Products
             set { _productName = value; }
         }
 
-        private long _productPrice;
-        public long ProductPrice
+        private double _productPrice;
+        public double ProductPrice
         {
             get { return _productPrice; }
             set { _productPrice = value; }
         }
-        public Product(string productName, long productPrice)
+        public Product(string productName, double productPrice)
         {
             ProductName = productName;
             ProductPrice = productPrice;
         }
-
         public static List<Product> GenerateListOfProducts()
         {
-            return new List<Product>() { new Product("Penna", 24), 
-                                         new Product("Annanas", 24), 
-                                         new Product("Äpple", 24),
-                                         new Product("Penna (lång)", 24)};
+            return new List<Product>() { new Product("Penna", 5), 
+                                         new Product("Annanas", 20), 
+                                         new Product("Äpple", 4),
+                                         new Product("Penna (lång)", 30)};
         }
         public override string ToString()
         {

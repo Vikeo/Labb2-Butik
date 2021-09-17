@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Labb2test.Customers
 {
+    enum Membership
+    {
+        NonMember, Bronze, Silver, Gold
+    }
     abstract class Customer
     {
         private string _username;
@@ -22,7 +26,13 @@ namespace Labb2test.Customers
             get { return _password; }
             set { _password = value; }
         }
+        private Membership _membership;
 
+        public Membership Membership
+        {
+            get { return _membership; }
+            set { _membership = value; }
+        }
         public Customer(string username, string password)
         {
             this.Username = username;
@@ -30,7 +40,13 @@ namespace Labb2test.Customers
         }
         public override string ToString()
         {
-            return String.Format($"{Username}鯨{Password}鯨");
+            return String.Format($"{Username}鯨{Password}鯨{Membership}鯨");
+        }
+        
+        //Skriva med om det är bronze, silver eller guld här eller i de egna klasserna?
+        public virtual double CalculateSumBasedOnMembership(Membership membership, double sumInSEK)
+        {
+            return sumInSEK;
         }
     }
 }

@@ -15,10 +15,9 @@ namespace Labb2test.Customers
             this.Membership = membership;
         }
 
-        public override double CalculateSumBasedOnMembership(Membership membership, double sumInSEK)
+        public override double CalculateSumBasedOnMembership(double sumInSEK)
         {
-            sumInSEK = sumInSEK * 0.85;
-            return sumInSEK;
+            return sumInSEK * 0.85;
         }
     }
 }

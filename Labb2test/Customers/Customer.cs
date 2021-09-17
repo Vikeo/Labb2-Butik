@@ -44,7 +44,7 @@ namespace Labb2test.Customers
         }
         
         //Skriva med om det är bronze, silver eller guld här eller i de egna klasserna?
-        public virtual double CalculateSumBasedOnMembership(Membership membership, double sumInSEK)
+        public virtual double CalculateSumBasedOnMembership(double sumInSEK)
         {
             return sumInSEK;
         }

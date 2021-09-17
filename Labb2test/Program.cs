@@ -8,14 +8,9 @@ namespace Labb2test
 {
     class Program
     {
-        private static SessionState _sessionState;
         private static MenuState _menuState;
         private static List<Customer> _allCustomers = new List<Customer>();
-        private static List<GoldCustomer> _goldCustomers = new List<GoldCustomer>();
-        private static List<SilverCustomer> _silverCustomers = new List<SilverCustomer>();
-        private static List<BronzeCustomer> _bronzeCustomers = new List<BronzeCustomer>();
-        private static string _loggedInCustomer = "N/A";
-        private static Membership _loggedInCustomerMembership = Membership.NonMember;
+        private static Customer _loggedInCustomer;
         private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private static List<Product> _products = Product.GenerateListOfProducts();
         private static List<Product> _userCart = new List<Product>();
@@ -36,27 +31,25 @@ namespace Labb2test
             FetchSavedCustomers();
 
             _menuState = MenuState.Welcome;
-            _sessionState = SessionState.Active;
 
             //Session active
-            while (_sessionState == SessionState.Active)
+            while (_menuState != MenuState.Quit)
             {
                 Console.Clear();
-                //Menu1
-                while (_menuState == MenuState.Welcome)
+                //Menu1 Kanske borde ha if
+                switch (_menuState)
                 {
-                    //RenderWelcomeMenu metod
-                    RenderWelcomeMenu();
-                }
-
-                while (_menuState == MenuState.LoggedIn)
-                {
-                    RenderLoggedinMenu();
-                }
-
-                while (_menuState == MenuState.Buying)
-                {
-                    RenderBuyMenu();
+                    case MenuState.Welcome:
+                        RenderWelcomeMenu();
+                        break;
+                    case MenuState.LoggedIn:
+                        RenderLoggedinMenu();
+                        break;
+                    case MenuState.Buying:
+                        RenderBuyMenu();
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -65,7 +58,6 @@ namespace Labb2test
         {
             Console.Clear();
             Console.WriteLine("1. Logga in\n2. Registrera dig som ny kund\n3. Avsluta");
-            UpdateAllCustomersList();
             Console.WriteLine($"\nAntal registrerade kunder: {_allCustomers.Count}");
 
             switch (Console.ReadLine())
@@ -91,7 +83,7 @@ namespace Labb2test
         private static void RenderLoggedinMenu()
         {
             Console.Clear();
-            Console.WriteLine($"Du är inloggad som \"{_loggedInCustomer} ({_loggedInCustomerMembership})\"\n--------------------------------------------------------\n1. Handla\n2. Se kundvagnen\n3. Gå till kassan\n4. Logga ut");
+            Console.WriteLine($"Du är inloggad som \"{_loggedInCustomer.Username} ({_loggedInCustomer.Membership})\"\n--------------------------------------------------------\n1. Handla\n2. Se kundvagnen\n3. Gå till kassan\n4. Logga ut");
             switch (Console.ReadLine())
             {
                 case "1":
@@ -131,17 +123,8 @@ namespace Labb2test
             switch (userInput)
             {
                 case "1":
-                    AddProductToCart(userInput);
-                    break;
-
                 case "2":
-                    AddProductToCart(userInput);
-                    break;
-
                 case "3":
-                    AddProductToCart(userInput);
-                    break;
-
                 case "4":
                     AddProductToCart(userInput);
                     break;
@@ -161,6 +144,7 @@ namespace Labb2test
             if (_userCart.Count != 0)
             {
                 Console.WriteLine("Tack för köpet!");
+                _userCart.Clear();
                 Console.ReadLine();
                 QuitApplication();
                 //Avsluta eller skicka tillbaka???
@@ -175,6 +159,7 @@ namespace Labb2test
         private static void PrintCart()
         {
             Console.Clear();
+            Console.WriteLine("Din kundvagn:");
             var itemCounter = 0;
             ;
             foreach (var product in _userCart)
@@ -182,34 +167,16 @@ namespace Labb2test
                 Console.WriteLine(product);
                 itemCounter++;
             }
-            Console.WriteLine($"\nDen totala summan i SEK är: {_sumPriceInSEK}:-\n");
+            Console.WriteLine($"\nDen totala summan i SEK är: {_sumPriceInSEK}kr\n");
 
             Console.WriteLine($"I Euro: {ConvertSumPriceInEUR(_sumPriceInSEK)}");
             Console.WriteLine($"I Yen: {ConvertSumPriceInJPY(_sumPriceInSEK)}");
 
             var calculatedSum = 0d;
-            switch (_loggedInCustomerMembership)
-            {
-                case Membership.NonMember:
-                    break;
+            
+            calculatedSum = _loggedInCustomer.CalculateSumBasedOnMembership(_sumPriceInSEK);
 
-                case Membership.Bronze:
-                    calculatedSum = ;
-                    break;
-
-                case Membership.Silver:
-                    calculatedSum = SilverCustomer.CalculateSumBasedOnMembership();
-                    break;
-
-                case Membership.Gold:
-                    calculatedSum = GoldCustomer.CalculateGoldCustomerSum(_sumPriceInSEK);
-                    break;
-
-                default:
-                    break;
-            }
-
-            Console.WriteLine($"\n");
+            Console.WriteLine($"\nMed {_loggedInCustomer.Membership}-medlemskap kostar det: {calculatedSum}kr");
 
             Console.WriteLine("\nTryck ENTER för att gå tillbaka.");
 
@@ -245,7 +212,6 @@ namespace Labb2test
 
         private static void LoginCustomer()
         {
-            UpdateAllCustomersList();
             bool tryAgain = true;
             bool usernameMatch = false;
             while (tryAgain)
@@ -267,8 +233,7 @@ namespace Labb2test
                             Console.Write($"\nDu är nu inloggad som \"{customer.Username}\"!!");
                             Console.ReadLine();
                             _menuState = MenuState.LoggedIn;
-                            _loggedInCustomerMembership = customer.Membership;
-                            _loggedInCustomer = customer.Username;
+                            _loggedInCustomer = customer;
                             return;
                         }
                         else
@@ -327,13 +292,14 @@ namespace Labb2test
             using (var sr = new StreamReader(Path.Combine(_docPath, "Customers.txt")))
             {
                 var text = sr.ReadToEnd();
-                string[] splitText = text.Split('鯨');
+                //var textLine = sr.ReadLine();   //Coolare/Bättre
+                string[] splitText = text.Split('鯨'); //ändra till ,/; ??? (CSV)
                 for (int i = 0; i < splitText.Length - 1; i += 3)
                 {
                     string savedUsername = splitText[i];
                     string savedPassword = splitText[i + 1];
                     Membership savedMembership = Enum.Parse<Membership>(splitText[i + 2]);
-                    var savedCustomer = new GoldCustomer(savedUsername, savedPassword, savedMembership);
+                    
                     switch (savedMembership)
                     {
                         case Membership.NonMember:
@@ -341,15 +307,18 @@ namespace Labb2test
                             break;
 
                         case Membership.Bronze:
-                            _goldCustomers.Add(savedCustomer);
+                            var bronzeCustomer = new BronzeCustomer(savedUsername, savedPassword, savedMembership);
+                            _allCustomers.Add(bronzeCustomer);
                             break;
 
                         case Membership.Silver:
-                            _goldCustomers.Add(savedCustomer);
+                            var silverCustomer = new SilverCustomer(savedUsername, savedPassword, savedMembership);
+                            _allCustomers.Add(silverCustomer);
                             break;
 
                         case Membership.Gold:
-                            _goldCustomers.Add(savedCustomer);
+                            var goldCustomer = new GoldCustomer(savedUsername, savedPassword, savedMembership);
+                            _allCustomers.Add(goldCustomer);
                             break;
 
                         default:
@@ -427,17 +396,17 @@ namespace Labb2test
 
                 case Membership.Bronze:
                     var newBronzeCustomer = new BronzeCustomer(newUsername, newPassword, newMembership);
-                    _bronzeCustomers.Add(newBronzeCustomer);
+                    _allCustomers.Add(newBronzeCustomer);
                     break;
 
                 case Membership.Silver:
                     var newSilverCustomer = new SilverCustomer(newUsername, newPassword, newMembership);
-                    _silverCustomers.Add(newSilverCustomer);
+                    _allCustomers.Add(newSilverCustomer);
                     break;
 
                 case Membership.Gold:
                     var newGoldCustomer = new GoldCustomer(newUsername, newPassword, newMembership);
-                    _goldCustomers.Add(newGoldCustomer);
+                    _allCustomers.Add(newGoldCustomer);
                     break;
 
                 default:
@@ -447,17 +416,8 @@ namespace Labb2test
             Console.ReadLine();
         }
 
-        private static void UpdateAllCustomersList()
-        {
-            _allCustomers.Clear();
-            _allCustomers.AddRange(_bronzeCustomers);
-            _allCustomers.AddRange(_silverCustomers);
-            _allCustomers.AddRange(_goldCustomers);
-        }
-
         private static bool CheckIfUsernameIsTaken(string newUsername)
         {
-            UpdateAllCustomersList();
             foreach (var customer in _allCustomers)
             {
                 if (newUsername == customer.Username)
@@ -473,7 +433,8 @@ namespace Labb2test
         private static void LogoutCustomer()
         {
             Console.Clear();
-            _loggedInCustomer = "N/A";
+            _userCart.Clear();
+            _loggedInCustomer = null;
             _menuState = MenuState.Welcome;
             Console.WriteLine("Du loggades ut");
             Console.ReadLine();
@@ -484,22 +445,11 @@ namespace Labb2test
             Console.Clear();
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "Customers.txt")))
             {
-                foreach (var customer in _goldCustomers)
+                foreach (var customer in _allCustomers)
                     outputFile.Write(customer.ToString());
             }
 
-            //OSÄKER OM DETTA BEHÖVS
-            /*string path = Path.Combine(docPath, "WriteLines.txt");
-
-            int fileNumber = 0;
-
-            while (File.Exists(path))
-            {
-                path = Path.Combine(docPath, $"WriteLines({fileNumber}).txt");
-                fileNumber++;
-            }*/
             _userCart.Clear();
-            _sessionState = SessionState.Terminate;
             _menuState = MenuState.Quit;
             Console.WriteLine("\n-----------Applikationen avslutades-----------");
         }

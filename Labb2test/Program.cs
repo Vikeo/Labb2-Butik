@@ -11,9 +11,9 @@ namespace Labb2test
         private static MenuState _menuState;
         private static List<Customer> _allCustomers = new List<Customer>();
         private static Customer _loggedInCustomer;
-        private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private static List<Product> _products = Product.GenerateListOfProducts();
         private static List<Product> _userCart = new List<Product>();
+        private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private static double _sumPriceInSEK = 0;
 
         enum MenuState
@@ -213,58 +213,28 @@ namespace Labb2test
         private static void LoginCustomer()
         {
             bool tryAgain = true;
-            bool usernameMatch = false;
             while (tryAgain)
             {
                 Console.Clear();
                 Console.WriteLine("Logga in");
                 Console.Write("Skriv in ditt användarnamn: ");
                 string loginUsername = Console.ReadLine();
+                Console.Write("Skriv in ditt lösenord: ");
+                string loginPassword = Console.ReadLine();
+                bool loginSuccess = CheckIfLoginSuccess(loginUsername, loginPassword);
 
-                foreach (var customer in _allCustomers)
+                if (loginSuccess)
                 {
-                    if (loginUsername == customer.Username)
-                    {
-                        Console.Write("Skriv in ditt lösenord: ");
-                        string loginPassword = Console.ReadLine();
-                        usernameMatch = true;
-                        if (loginPassword == customer.Password)
-                        {
-                            Console.Write($"\nDu är nu inloggad som \"{customer.Username}\"!!");
-                            Console.ReadLine();
-                            _menuState = MenuState.LoggedIn;
-                            _loggedInCustomer = customer;
-                            return;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Lösenordet är fel. Försök igen?\n1. Försök igen\n2. Gå tillbaka till huvudmenyn.");
-                            bool continueLoop2 = true;
-                            while (continueLoop2)
-                            {
-                                switch (Console.ReadLine())
-                                {
-                                    case "1":
-                                        continueLoop2 = false;
-                                        break;
-
-                                    case "2":
-                                        tryAgain = false;
-                                        continueLoop2 = false;
-                                        break;
-
-                                    default:
-                                        break;
-                                }
-                            }
-                        }
-                    }
+                    Console.Write($"\nDu är nu inloggad som \"{_loggedInCustomer.Username}\"!!");
+                    Console.ReadLine();
+                    _menuState = MenuState.LoggedIn;
+                    return;
                 }
-                if (!usernameMatch)
+                else
                 {
                     Console.Clear();
-                    Console.WriteLine("Användarnamnet finns inte i våran databas, vill du registrera dig som ny kund eller försöka igen?");
-                    Console.WriteLine("1. Registrera dig som kund\n2. Försök igen");
+                    Console.WriteLine($"Kunden {loginUsername} finns inte i våran databas, eller så har du skrivit fel.\nVill du registrera dig som ny kund eller försöka igen?");
+                    Console.WriteLine("\n1. Registrera som ny kund\n2. Försök igen \n3. Gå tillbaka till huvudmenyn");
                     bool continueLoop = true;
                     while (continueLoop)
                     {
@@ -279,12 +249,30 @@ namespace Labb2test
                                 continueLoop = false;
                                 break;
 
+                            case "3":
+                                tryAgain = false;
+                                continueLoop = false;
+                                break;
+
                             default:
                                 break;
                         }
                     }
                 }
             }
+        }
+
+        private static bool CheckIfLoginSuccess(string loginUsername, string loginPassword)
+        {
+            foreach (var customer in _allCustomers)
+            {
+                if (loginUsername == customer.Username && loginPassword == customer.Password)
+                {
+                    _loggedInCustomer = customer;
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static void FetchSavedCustomers()
@@ -332,20 +320,21 @@ namespace Labb2test
         public static void GenerateCustomer()
         {
             Console.Clear();
-            Console.WriteLine("Vänligen skriv ditt önskade Användarnamn och sedan Lösenord, samt vilket medlemskap du vill ha.\n(Brons = 5% rabatt, Silver = 10% rabatt, Guld = 15% rabbat.");
+            Console.WriteLine("Vänligen skriv ditt önskade Användarnamn och sedan Lösenord, samt vilket medlemskap du vill ha.\n(Brons = 5% rabatt, Silver = 10% rabatt, Guld = 15% rabbat.\n");
             Console.Write("Användarnamn: ");
             string newUsername = Console.ReadLine().Replace(" ", "");
+            bool isDuplicateUsername = CheckIfUsernameExists(newUsername);
+            if (isDuplicateUsername)
+            {
+                Console.WriteLine($"\nDet finns redan en kund med användarnamnet \"{newUsername}\". Försök igen med ett annat användarnamn.");
+                Console.ReadLine();
+                return;
+            }
 
             Console.Write("Lösenord: ");
             string newPassword = Console.ReadLine().Replace(" ", "");
 
-            //bool success = Enum.TryParse<Membership>(Console.ReadLine(), out newMembership);
-            //if (!success)
-            //{
-            //    Console.WriteLine("Du måste välja ett medlemskap.");
-            //    return;
-            //}
-            Console.WriteLine("Välj medlemskap:\n1. Brons (5% rabatt)\n2. Silver (10% rabatt)\n3. Guld(15% rabatt)\n");
+            Console.WriteLine("\nVälj medlemskap:\n1. Brons (5% rabatt)\n2. Silver (10% rabatt)\n3. Guld(15% rabatt)\n");
             Membership newMembership = Membership.NonMember;
             bool continueLoop = true;
             while (continueLoop)
@@ -371,19 +360,19 @@ namespace Labb2test
                         break;
                 }
             }
-
+            
             if (newUsername == "" || newPassword == "")
             {
-                Console.WriteLine("Användarnamnet eller lösenordet är tomt. Försök igen.");
+                Console.WriteLine("\nAnvändarnamnet eller lösenordet är tomt. Försök igen");
                 Console.ReadLine();
                 return;
             }
 
-            bool isDuplicateUsername = CheckIfUsernameIsTaken(newUsername);
-            if (!isDuplicateUsername)
+            else if(!isDuplicateUsername)
             {
                 AddNewCustomerBasedOnMembership(newUsername, newPassword, newMembership);
             }
+            
             return;
         }
 
@@ -416,14 +405,12 @@ namespace Labb2test
             Console.ReadLine();
         }
 
-        private static bool CheckIfUsernameIsTaken(string newUsername)
+        private static bool CheckIfUsernameExists(string username)
         {
             foreach (var customer in _allCustomers)
             {
-                if (newUsername == customer.Username)
+                if (username == customer.Username)
                 {
-                    Console.WriteLine($"Det finns redan en kund med användarnamnet \"{newUsername}\"");
-                    Console.ReadLine();
                     return true;
                 }
             }

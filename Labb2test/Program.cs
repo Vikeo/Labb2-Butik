@@ -8,11 +8,14 @@ namespace Labb2test
 {
     class Program
     {
+
+        //Kom på ett nytt sätt att skriva användarnas info till MyDocuments.
+        //använd "public void string SaveUsers(List<Customer>);
+
         private static MenuState _menuState;
         private static List<Customer> _allCustomers = new List<Customer>();
         private static Customer _loggedInCustomer;
         private static List<Product> _products = Product.GenerateListOfProducts();
-        private static List<Product> _userCart = new List<Product>();
         private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private static double _sumPriceInSEK = 0;
 
@@ -141,10 +144,10 @@ namespace Labb2test
         private static void Checkout()
         {
             Console.Clear();
-            if (_userCart.Count != 0)
+            if (_loggedInCustomer.Cart.Count != 0)
             {
                 Console.WriteLine("Tack för köpet!");
-                _userCart.Clear();
+                _loggedInCustomer.Cart.Clear();
                 Console.ReadLine();
                 QuitApplication();
                 //Avsluta eller skicka tillbaka???
@@ -161,8 +164,8 @@ namespace Labb2test
             Console.Clear();
             Console.WriteLine("Din kundvagn:");
             var itemCounter = 0;
-            ;
-            foreach (var product in _userCart)
+            
+            foreach (var product in _loggedInCustomer.Cart)
             {
                 Console.WriteLine(product);
                 itemCounter++;
@@ -179,6 +182,9 @@ namespace Labb2test
             Console.WriteLine($"\nMed {_loggedInCustomer.Membership}-medlemskap kostar det: {calculatedSum}kr");
 
             Console.WriteLine("\nTryck ENTER för att gå tillbaka.");
+
+
+            Console.WriteLine($"{_loggedInCustomer.ToString()}");
 
 
             //Brons  Medlem: 5% rabatt på hela köpet.
@@ -206,8 +212,10 @@ namespace Labb2test
         {
             Product productToCart;
             productToCart = new Product(_products[int.Parse(userInput) - 1].ProductName, _products[int.Parse(userInput) - 1].ProductPrice);
-            _userCart.Add(productToCart);
+            _loggedInCustomer.Cart.Add(productToCart);
             _sumPriceInSEK += _products[int.Parse(userInput) - 1].ProductPrice;
+            
+            Console.WriteLine();
         }
 
         private static void LoginCustomer()
@@ -392,7 +400,7 @@ namespace Labb2test
             return;
         }
 
-        private static bool VerifyPassword(string newPassword)
+        private static bool VerifyPassword(string newPassword) //behövs nog inte
         {
             Console.Write("Skriv lösenorder igen: ");
             string tempPassword = Console.ReadLine();
@@ -450,7 +458,6 @@ namespace Labb2test
         private static void LogoutCustomer()
         {
             Console.Clear();
-            _userCart.Clear();
             _loggedInCustomer = null;
             _menuState = MenuState.Welcome;
             Console.WriteLine("Du loggades ut");
@@ -469,7 +476,7 @@ namespace Labb2test
                     
             }
 
-            _userCart.Clear();
+            _loggedInCustomer.Cart.Clear();
             _menuState = MenuState.Quit;
             Console.WriteLine("\n-----------Applikationen avslutades-----------");
         }

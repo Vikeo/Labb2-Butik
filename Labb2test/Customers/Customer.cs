@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Labb2test.Products;
 
 namespace Labb2test.Customers
 {
@@ -22,6 +24,11 @@ namespace Labb2test.Customers
             get { return _password; }
             set { _password = value; }
         }
+
+        private List<Product> _cart;
+
+        public List<Product> Cart { get { return _cart; } }
+
         private Membership _membership;
 
         public Membership Membership
@@ -33,15 +40,13 @@ namespace Labb2test.Customers
         {
             this.Username = username;
             this.Password = password;
+            this._cart = new List<Product>();
         }
-
-
-        //Kundvagn ska in hit!
-
 
         public override string ToString()
         {
-            return String.Format($"{Username}鯨{Password}鯨{Membership}鯨");
+            string jointString = string.Join(",", Cart);
+            return String.Format($"{Username}, {Password}, {jointString}");
             //Ska skriva ut namn, lösenord och kundvagn
         }
 

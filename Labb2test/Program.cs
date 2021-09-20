@@ -110,7 +110,7 @@ namespace Labb2test
         private static void RenderBuyMenu()
         {
             Console.Clear();
-            Console.WriteLine("Handla\nVälj något som du vill lägga till i kundvagnen. En vara åt gången.");
+            Console.WriteLine("Handla\nVälj något som du vill lägga till i kundvagnen. En vara åt gången. Du kan byta valuta med genom att skriva SEK, EUR eller JPY");
             int itemNumber = 0;
             foreach (var product in _products)
             {
@@ -189,16 +189,16 @@ namespace Labb2test
         }
 
         //DRY??????
-        private static double ConvertSumPriceInEUR(double sumInSEK)
+        private static double ConvertSumPriceInEUR(double priceInSEK)
         {
             var conversionRate = 0.0984775f;
-            var sumInEURO = sumInSEK * conversionRate;
+            var sumInEURO = priceInSEK * conversionRate;
             return Math.Round(sumInEURO, 2);
         }
-        private static double ConvertSumPriceInJPY(double sumInSEK)
+        private static double ConvertSumPriceInJPY(double priceInSEK)
         {
             var conversionRate = 12.7529f;
-            var sumInYEN = sumInSEK * conversionRate;
+            var sumInYEN = priceInSEK * conversionRate;
             return Math.Round(sumInYEN, 2);
         }
 
@@ -277,10 +277,25 @@ namespace Labb2test
 
         private static void FetchSavedCustomers()
         {
+
+            if (!File.Exists(_docPath))
+            {
+                using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "Customers.txt")))
+                {
+                    var predefinedCustomers = new List<Customer>() { new GoldCustomer("Knatte", "123", Membership.Gold),
+                                                                     new SilverCustomer("Fnatte", "321", Membership.Silver),
+                                                                     new BronzeCustomer("Tjatte", "213", Membership.Bronze), };
+
+                    foreach (var customer in predefinedCustomers)
+                    {
+                        outputFile.Write(customer.ToString());
+                    }
+                }
+            }
             using (var sr = new StreamReader(Path.Combine(_docPath, "Customers.txt")))
             {
                 var text = sr.ReadToEnd();
-                //var textLine = sr.ReadLine();   //Coolare/Bättre
+                //var textLine = sr.ReadLine();   //Coolare/Bättre??
                 string[] splitText = text.Split('鯨'); //ändra till ,/; ??? (CSV)
                 for (int i = 0; i < splitText.Length - 1; i += 3)
                 {
@@ -333,6 +348,7 @@ namespace Labb2test
 
             Console.Write("Lösenord: ");
             string newPassword = Console.ReadLine().Replace(" ", "");
+            bool passwordVerified = VerifyPassword(newPassword);
 
             Console.WriteLine("\nVälj medlemskap:\n1. Brons (5% rabatt)\n2. Silver (10% rabatt)\n3. Guld(15% rabatt)\n");
             Membership newMembership = Membership.NonMember;
@@ -374,6 +390,20 @@ namespace Labb2test
             }
             
             return;
+        }
+
+        private static bool VerifyPassword(string newPassword)
+        {
+            Console.Write("Skriv lösenorder igen: ");
+            string tempPassword = Console.ReadLine();
+            if (tempPassword == newPassword)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private static void AddNewCustomerBasedOnMembership(string newUsername, string newPassword, Membership newMembership)
@@ -433,7 +463,10 @@ namespace Labb2test
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "Customers.txt")))
             {
                 foreach (var customer in _allCustomers)
+                {
                     outputFile.Write(customer.ToString());
+                }
+                    
             }
 
             _userCart.Clear();

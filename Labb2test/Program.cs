@@ -13,6 +13,7 @@ namespace Labb2test
         private static Customer _loggedInCustomer;
         private static List<Product> _products = Product.GenerateListOfProducts();
         private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        private static string _userChoosenCurrency = "SEK";
 
         enum MenuState
         {
@@ -25,10 +26,8 @@ namespace Labb2test
 
         static void Main(string[] args)
         {
-
             FetchSavedCustomers();
-
-
+            Console.OutputEncoding = System.Text.Encoding.Unicode;
 
             _menuState = MenuState.Welcome;
 
@@ -83,7 +82,16 @@ namespace Labb2test
         private static void RenderLoggedinMenu()
         {
             Console.Clear();
-            Console.WriteLine($"Du är inloggad som \"{_loggedInCustomer.Username} ({_loggedInCustomer.Membership})\"\n--------------------------------------------------------\n1. Handla\n2. Se kundvagnen\n3. Gå till kassan\n4. Logga ut");
+            Console.WriteLine($"Du är inloggad som \"{_loggedInCustomer.Username} ({_loggedInCustomer.Membership})\"" +
+                $"\n--------------------------------------------------------" +
+                $"\n1. Handla" +
+                $"\n2. Se kundvagnen" +
+                $"\n3. Gå till kassan och betala" +
+                $"\n4. Logga ut");
+
+            //TEMPALL RAD SOM SKA TAS BORT
+            Console.WriteLine($"\n\n{_loggedInCustomer.ToString()}");
+
             switch (Console.ReadLine())
             {
                 case "1":
@@ -107,20 +115,21 @@ namespace Labb2test
             }
         }
 
-        //Gör så att man kan ändra mellan SEK, EUR coh YEN
         private static void RenderBuyMenu()
         {
             Console.Clear();
-            Console.WriteLine("Handla\nVälj något som du vill lägga till i kundvagnen. En vara åt gången. Du kan byta valuta med genom att skriva SEK, EUR eller JPY");
+            Console.WriteLine("Handla\n\nVälj något som du vill lägga till i kundvagnen. En vara åt gången. " +
+                "\nDu kan byta valuta med genom att skriva SEK, EUR eller JPY\n");
             int itemNumber = 0;
+            
             foreach (var product in _products)
             {
                 itemNumber++;
-                Console.WriteLine($"{itemNumber}. {product}");
+                Console.Write($"{itemNumber}. {product.ToString(_userChoosenCurrency)}");
             };
-
             Console.WriteLine($"{itemNumber + 1}. Gå tillbaka");
             string userInput = Console.ReadLine();
+
             switch (userInput)
             {
                 case "1":
@@ -134,22 +143,34 @@ namespace Labb2test
                     _menuState = MenuState.LoggedIn;
                     break;
 
+                case "SEK":
+                    _userChoosenCurrency = "SEK";
+                    break;
+
+                case "EUR":
+                    _userChoosenCurrency = "EUR";
+                    break;
+
+                case "JPY":
+                    _userChoosenCurrency = "JPY";
+                    break;
+
                 default:
                     break;
             }
         }
 
-        //Fixa lite med checkout.
         private static void Checkout()
         {
             Console.Clear();
             if (_loggedInCustomer.Cart.Count != 0)
             {
-                Console.WriteLine("Tack för köpet!");
+                double calculatedSum = _loggedInCustomer.CalculateSumBasedOnMembership(_loggedInCustomer.CartSumInSEK);
+                Console.WriteLine($"Tack för köpet! " +
+                    $"\nDu är en {_loggedInCustomer.Membership}-kund, så det kostade dig {calculatedSum}kr (istället för {_loggedInCustomer.CartSumInSEK}kr)");
                 _loggedInCustomer.Cart.Clear();
                 Console.ReadLine();
                 QuitApplication();
-                //Avsluta eller skicka tillbaka???
             }
             else
             {
@@ -166,39 +187,18 @@ namespace Labb2test
             
             foreach (var product in _loggedInCustomer.Cart)
             {
-                Console.WriteLine(product);
+                Console.Write(product.ToString());
                 itemCounter++;
             }
-            Console.WriteLine($"\nDen totala summan i SEK är: {_loggedInCustomer.CartSum}kr\n");
+            Console.WriteLine($"\nDen totala summan i SEK är: {_loggedInCustomer.CartSumInSEK} kr\n");
 
-            Console.WriteLine($"I Euro: {ConvertSumPriceInEUR(_loggedInCustomer.CartSum)}");
-            Console.WriteLine($"I Yen: {ConvertSumPriceInJPY(_loggedInCustomer.CartSum)}");
-
-            var calculatedSum = 0d;
-
-            calculatedSum = _loggedInCustomer.CalculateSumBasedOnMembership(_loggedInCustomer.CartSum);
-
-            Console.WriteLine($"\nMed {_loggedInCustomer.Membership}-medlemskap kostar det: {calculatedSum}kr");
+            Console.WriteLine($"I Euro: {Product.ConvertSumPriceInEUR(_loggedInCustomer.CartSumInSEK)}");
+            Console.WriteLine($"I Yen: {Product.ConvertSumPriceInJPY(_loggedInCustomer.CartSumInSEK)}");
+            double calculatedSum = _loggedInCustomer.CalculateSumBasedOnMembership(_loggedInCustomer.CartSumInSEK);
+            Console.WriteLine($"\nMed {_loggedInCustomer.Membership}-medlemskap kostar det: {calculatedSum} kr");
 
             Console.WriteLine("\nTryck ENTER för att gå tillbaka.");
-
-            //TEMPALL RAD SOM SKA TAS BORT
-            Console.WriteLine($"{_loggedInCustomer.ToString()}");
             Console.ReadLine();
-        }
-
-        //DRY??????
-        private static double ConvertSumPriceInEUR(double priceInSEK)
-        {
-            var conversionRate = 0.0984775f;
-            var sumInEURO = priceInSEK * conversionRate;
-            return Math.Round(sumInEURO, 2);
-        }
-        private static double ConvertSumPriceInJPY(double priceInSEK)
-        {
-            var conversionRate = 12.7529f;
-            var sumInYEN = priceInSEK * conversionRate;
-            return Math.Round(sumInYEN, 2);
         }
 
         private static void AddProductToCart(string userInput)
@@ -206,10 +206,7 @@ namespace Labb2test
             Product productToCart;
             productToCart = new Product(_products[int.Parse(userInput) - 1].ProductName, _products[int.Parse(userInput) - 1].ProductPrice);
             _loggedInCustomer.Cart.Add(productToCart);
-            _loggedInCustomer.CartSum += _products[int.Parse(userInput) - 1].ProductPrice;
-            
-            //TEMPALL varför har jag writeline här?
-            Console.WriteLine();
+            _loggedInCustomer.CartSumInSEK += _products[int.Parse(userInput) - 1].ProductPrice;
         }
 
         private static void LoginCustomer()
@@ -218,7 +215,7 @@ namespace Labb2test
             while (tryAgain)
             {
                 Console.Clear();
-                Console.WriteLine("Logga in");
+                Console.WriteLine("Logga in\n");
                 Console.Write("Skriv in ditt användarnamn: ");
                 string loginUsername = Console.ReadLine();
                 Console.Write("Skriv in ditt lösenord: ");
@@ -409,7 +406,7 @@ namespace Labb2test
 
                     foreach (var customer in predefinedCustomers)
                     {
-                        outputFile.Write(customer.ToString());
+                        outputFile.Write(SaveUser(customer));
                     }
                 }
             }

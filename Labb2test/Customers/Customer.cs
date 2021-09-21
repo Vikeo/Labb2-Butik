@@ -10,8 +10,6 @@ namespace Labb2test.Customers
     }
     abstract class Customer
     {
-        //Implementation för totalpris
-
         private string _username;
         public string Username
         {
@@ -30,7 +28,7 @@ namespace Labb2test.Customers
         public List<Product> Cart { get { return _cart; } }
 
         private double _cartSum;
-        public double CartSum
+        public double CartSumInSEK
         {
             get { return _cartSum; }
             set { _cartSum = value; }
@@ -48,15 +46,23 @@ namespace Labb2test.Customers
             this.Username = username;
             this.Password = password;
             this._cart = new List<Product>();
-            this.CartSum = 0;
+            this.CartSumInSEK = 0;
         }
 
         public override string ToString()
         {
-            string jointString = string.Join(",", Cart);
-            return String.Format($"{Username}, {Password}, {jointString}");
-            //Ska skriva ut namn, lösenord och kundvagn
+            string jointString = "";
+
+            foreach (var item in Cart)
+            {
+                jointString += item.ToString();
+            }
+
+            return String.Format($"Användarnamn: {Username}" +
+                $"\nLösenord: {Password}" +
+                $"\nKundvagnen innehåller: \n{jointString}");
         }
+
         public static bool VerifyPassword(string password, Customer customer)
         {
             if (password == customer.Password)
@@ -74,7 +80,6 @@ namespace Labb2test.Customers
             return customer.Password;
         }
 
-        //Skriva med om det är bronze, silver eller guld här eller i de egna klasserna?
         public virtual double CalculateSumBasedOnMembership(double sumInSEK)
         {
             return sumInSEK;

@@ -10,6 +10,7 @@ namespace Labb2test.Customers
             get { return _password; }
             set { _password = value; }
         }
+
         public SilverCustomer(string username, string password, Membership membership) : base(username, password)
         {
             this.Username = username;
@@ -20,10 +21,6 @@ namespace Labb2test.Customers
         public override double CalculateSumBasedOnMembership(double sumInSEK)
         {
             return sumInSEK * 0.90;
-        }
-        public override string ToString()
-        {
-            return String.Format($"{Username}鯨{Password}鯨{Membership}鯨");
         }
     }
 }

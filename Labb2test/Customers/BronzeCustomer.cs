@@ -22,10 +22,5 @@ namespace Labb2test.Customers
         {
             return sumInSEK * 0.95;
         }
-
-        public override string ToString()
-        {
-            return String.Format($"{Username}鯨{Password}鯨{Membership}鯨");
-        }
     }
 }

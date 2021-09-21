@@ -8,16 +8,11 @@ namespace Labb2test
 {
     class Program
     {
-
-        //Kom på ett nytt sätt att skriva användarnas info till MyDocuments.
-        //använd "public void string SaveUsers(List<Customer>);
-
         private static MenuState _menuState;
         private static List<Customer> _allCustomers = new List<Customer>();
         private static Customer _loggedInCustomer;
         private static List<Product> _products = Product.GenerateListOfProducts();
         private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        private static double _sumPriceInSEK = 0;
 
         enum MenuState
         {
@@ -32,6 +27,8 @@ namespace Labb2test
         {
 
             FetchSavedCustomers();
+
+
 
             _menuState = MenuState.Welcome;
 
@@ -110,6 +107,7 @@ namespace Labb2test
             }
         }
 
+        //Gör så att man kan ändra mellan SEK, EUR coh YEN
         private static void RenderBuyMenu()
         {
             Console.Clear();
@@ -141,6 +139,7 @@ namespace Labb2test
             }
         }
 
+        //Fixa lite med checkout.
         private static void Checkout()
         {
             Console.Clear();
@@ -158,7 +157,7 @@ namespace Labb2test
                 Console.ReadLine();
             }
         }
-
+        
         private static void PrintCart()
         {
             Console.Clear();
@@ -170,27 +169,21 @@ namespace Labb2test
                 Console.WriteLine(product);
                 itemCounter++;
             }
-            Console.WriteLine($"\nDen totala summan i SEK är: {_sumPriceInSEK}kr\n");
+            Console.WriteLine($"\nDen totala summan i SEK är: {_loggedInCustomer.CartSum}kr\n");
 
-            Console.WriteLine($"I Euro: {ConvertSumPriceInEUR(_sumPriceInSEK)}");
-            Console.WriteLine($"I Yen: {ConvertSumPriceInJPY(_sumPriceInSEK)}");
+            Console.WriteLine($"I Euro: {ConvertSumPriceInEUR(_loggedInCustomer.CartSum)}");
+            Console.WriteLine($"I Yen: {ConvertSumPriceInJPY(_loggedInCustomer.CartSum)}");
 
             var calculatedSum = 0d;
 
-            calculatedSum = _loggedInCustomer.CalculateSumBasedOnMembership(_sumPriceInSEK);
+            calculatedSum = _loggedInCustomer.CalculateSumBasedOnMembership(_loggedInCustomer.CartSum);
 
             Console.WriteLine($"\nMed {_loggedInCustomer.Membership}-medlemskap kostar det: {calculatedSum}kr");
 
             Console.WriteLine("\nTryck ENTER för att gå tillbaka.");
 
-
+            //TEMPALL RAD SOM SKA TAS BORT
             Console.WriteLine($"{_loggedInCustomer.ToString()}");
-
-
-            //Brons  Medlem: 5% rabatt på hela köpet.
-            //Silver Medlem: 10% rabatt på hela köpet.
-            //Guld Medlem:  15% rabatt på hela köpet.
-
             Console.ReadLine();
         }
 
@@ -213,8 +206,9 @@ namespace Labb2test
             Product productToCart;
             productToCart = new Product(_products[int.Parse(userInput) - 1].ProductName, _products[int.Parse(userInput) - 1].ProductPrice);
             _loggedInCustomer.Cart.Add(productToCart);
-            _sumPriceInSEK += _products[int.Parse(userInput) - 1].ProductPrice;
+            _loggedInCustomer.CartSum += _products[int.Parse(userInput) - 1].ProductPrice;
             
+            //TEMPALL varför har jag writeline här?
             Console.WriteLine();
         }
 
@@ -241,8 +235,14 @@ namespace Labb2test
                 else
                 {
                     Console.Clear();
-                    Console.WriteLine($"Kunden {loginUsername} finns inte i våran databas, eller så har du skrivit fel.\nVill du registrera dig som ny kund eller försöka igen?");
-                    Console.WriteLine("\n1. Registrera som ny kund\n2. Försök igen \n3. Gå tillbaka till huvudmenyn");
+                    Console.WriteLine($"Kunden {loginUsername} finns inte i våran databas, " +
+                        $"eller så har du skrivit fel." +
+                        $"\nVill du registrera dig som ny kund eller försöka igen?");
+                    
+                    Console.WriteLine("\n1. Registrera som ny kund" +
+                                      "\n2. Försök igen " +
+                                      "\n3. Gå tillbaka till huvudmenyn");
+
                     bool continueLoop = true;
                     while (continueLoop)
                     {
@@ -274,7 +274,7 @@ namespace Labb2test
         {
             foreach (var customer in _allCustomers)
             {
-                if (loginUsername == customer.Username && loginPassword == customer.Password)
+                if (Customer.VerifyPassword(loginPassword, customer) && loginUsername == customer.Username)
                 {
                     _loggedInCustomer = customer;
                     return true;
@@ -282,10 +282,123 @@ namespace Labb2test
             }
             return false;
         }
+        
+        public static void GenerateCustomer()
+        {
+            Console.Clear();
+            Console.WriteLine("Vänligen skriv ditt önskade Användarnamn och sedan Lösenord, " +
+                "samt vilket medlemskap du vill ha." +
+                "\n(Brons = 5% rabatt, Silver = 10% rabatt, Guld = 15% rabbat.\n");
+            Console.Write("Användarnamn: ");
+            string newUsername = Console.ReadLine().Replace(" ", "");
+            bool isDuplicateUsername = CheckIfUsernameExists(newUsername);
+            if (isDuplicateUsername)
+            {
+                Console.WriteLine($"\nDet finns redan en kund med användarnamnet \"{newUsername}\". " +
+                    $"Försök igen med ett annat användarnamn.");
+                Console.ReadLine();
+                return;
+            }
+
+            Console.Write("Lösenord: ");
+            string newPassword = Console.ReadLine().Replace(" ", "");
+
+            Console.WriteLine("\nVälj medlemskap:" +
+                "\n1. Brons (5% rabatt)" +
+                "\n2. Silver (10% rabatt)" +
+                "\n3. Guld(15% rabatt)\n");
+
+            Membership newMembership = Membership.NonMember;
+            bool continueLoop = true;
+            while (continueLoop)
+            {
+                switch (Console.ReadLine())
+                {
+                    case "1":
+                        newMembership = Membership.Bronze;
+                        continueLoop = false;
+                        break;
+
+                    case "2":
+                        newMembership = Membership.Silver;
+                        continueLoop = false;
+                        break;
+
+                    case "3":
+                        newMembership = Membership.Gold;
+                        continueLoop = false;
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            
+            if (newUsername == "" || newPassword == "")
+            {
+                Console.WriteLine("\nAnvändarnamnet eller lösenordet är tomt. Försök igen");
+                Console.ReadLine();
+                return;
+            }
+
+            else if(!isDuplicateUsername)
+            {
+                AddNewCustomerBasedOnMembership(newUsername, newPassword, newMembership);
+            }
+        }
+
+        private static bool CheckIfUsernameExists(string username)
+        {
+            foreach (var customer in _allCustomers)
+            {
+                if (username == customer.Username)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static void AddNewCustomerBasedOnMembership(string newUsername, string newPassword, Membership newMembership)
+        {
+            switch (newMembership)
+            {
+                case Membership.NonMember:
+                    break;
+
+                case Membership.Bronze:
+                    var newBronzeCustomer = new BronzeCustomer(newUsername, newPassword, newMembership);
+                    _allCustomers.Add(newBronzeCustomer);
+                    break;
+
+                case Membership.Silver:
+                    var newSilverCustomer = new SilverCustomer(newUsername, newPassword, newMembership);
+                    _allCustomers.Add(newSilverCustomer);
+                    break;
+
+                case Membership.Gold:
+                    var newGoldCustomer = new GoldCustomer(newUsername, newPassword, newMembership);
+                    _allCustomers.Add(newGoldCustomer);
+                    break;
+
+                default:
+                    break;
+            }
+            Console.WriteLine($"{newUsername} ({newMembership}) har blivit registrerad som en ny kund.");
+            Console.ReadLine();
+        }
+
+        private static void LogoutCustomer()
+        {
+            Console.Clear();
+            Console.WriteLine($"Du loggades ut {_loggedInCustomer.Username} ({_loggedInCustomer.Membership})");
+            _loggedInCustomer = null;
+            _menuState = MenuState.Welcome;
+            Console.ReadLine();
+        }
 
         private static void FetchSavedCustomers()
         {
-
             if (!File.Exists(_docPath))
             {
                 using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "Customers.txt")))
@@ -300,6 +413,7 @@ namespace Labb2test
                     }
                 }
             }
+
             using (var sr = new StreamReader(Path.Combine(_docPath, "Customers.txt")))
             {
                 var text = sr.ReadToEnd();
@@ -340,143 +454,23 @@ namespace Labb2test
             }
         }
 
-        public static void GenerateCustomer()
+        public static string SaveUser(Customer customer)
         {
-            Console.Clear();
-            Console.WriteLine("Vänligen skriv ditt önskade Användarnamn och sedan Lösenord, samt vilket medlemskap du vill ha.\n(Brons = 5% rabatt, Silver = 10% rabatt, Guld = 15% rabbat.\n");
-            Console.Write("Användarnamn: ");
-            string newUsername = Console.ReadLine().Replace(" ", "");
-            bool isDuplicateUsername = CheckIfUsernameExists(newUsername);
-            if (isDuplicateUsername)
-            {
-                Console.WriteLine($"\nDet finns redan en kund med användarnamnet \"{newUsername}\". Försök igen med ett annat användarnamn.");
-                Console.ReadLine();
-                return;
-            }
-
-            Console.Write("Lösenord: ");
-            string newPassword = Console.ReadLine().Replace(" ", "");
-            bool passwordVerified = VerifyPassword(newPassword);
-
-            Console.WriteLine("\nVälj medlemskap:\n1. Brons (5% rabatt)\n2. Silver (10% rabatt)\n3. Guld(15% rabatt)\n");
-            Membership newMembership = Membership.NonMember;
-            bool continueLoop = true;
-            while (continueLoop)
-            {
-                switch (Console.ReadLine())
-                {
-                    case "1":
-                        newMembership = Membership.Bronze;
-                        continueLoop = false;
-                        break;
-
-                    case "2":
-                        newMembership = Membership.Silver;
-                        continueLoop = false;
-                        break;
-
-                    case "3":
-                        newMembership = Membership.Gold;
-                        continueLoop = false;
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-            
-            if (newUsername == "" || newPassword == "")
-            {
-                Console.WriteLine("\nAnvändarnamnet eller lösenordet är tomt. Försök igen");
-                Console.ReadLine();
-                return;
-            }
-
-            else if(!isDuplicateUsername)
-            {
-                AddNewCustomerBasedOnMembership(newUsername, newPassword, newMembership);
-            }
-            
-            return;
-        }
-
-        private static bool VerifyPassword(string newPassword) //behövs nog inte
-        {
-            Console.Write("Skriv lösenorder igen: ");
-            string tempPassword = Console.ReadLine();
-            if (tempPassword == newPassword)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private static void AddNewCustomerBasedOnMembership(string newUsername, string newPassword, Membership newMembership)
-        {
-            switch (newMembership)
-            {
-                case Membership.NonMember:
-                    break;
-
-                case Membership.Bronze:
-                    var newBronzeCustomer = new BronzeCustomer(newUsername, newPassword, newMembership);
-                    _allCustomers.Add(newBronzeCustomer);
-                    break;
-
-                case Membership.Silver:
-                    var newSilverCustomer = new SilverCustomer(newUsername, newPassword, newMembership);
-                    _allCustomers.Add(newSilverCustomer);
-                    break;
-
-                case Membership.Gold:
-                    var newGoldCustomer = new GoldCustomer(newUsername, newPassword, newMembership);
-                    _allCustomers.Add(newGoldCustomer);
-                    break;
-
-                default:
-                    break;
-            }
-            Console.WriteLine($"{newUsername} ({newMembership}) har blivit registrerad som en ny kund.");
-            Console.ReadLine();
-        }
-
-        private static bool CheckIfUsernameExists(string username)
-        {
-            foreach (var customer in _allCustomers)
-            {
-                if (username == customer.Username)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private static void LogoutCustomer()
-        {
-            Console.Clear();
-            _loggedInCustomer = null;
-            _menuState = MenuState.Welcome;
-            Console.WriteLine("Du loggades ut");
-            Console.ReadLine();
+            string password = Customer.GetPassword(customer);
+            return String.Format($"{customer.Username}鯨{password}鯨{customer.Membership}鯨");
         }
 
         private static void QuitApplication()
         {
             Console.Clear();
+            
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "Customers.txt")))
             {
                 foreach (var customer in _allCustomers)
                 {
-                    outputFile.Write(customer.ToString());
+                    outputFile.Write(SaveUser(customer));
                 }
-                    
             }
-
-            _loggedInCustomer.Cart.Clear();
             _menuState = MenuState.Quit;
             Console.WriteLine("\n-----------Applikationen avslutades-----------");
         }

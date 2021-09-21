@@ -4,6 +4,12 @@ namespace Labb2test.Customers
 {
     class GoldCustomer : Customer
     {
+        private string _password;
+        private string Password
+        {
+            get { return _password; }
+            set { _password = value; }
+        }
         public GoldCustomer(string username, string password, Membership membership) : base(username, password)
         {
             this.Username = username;

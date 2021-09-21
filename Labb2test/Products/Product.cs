@@ -29,6 +29,7 @@ namespace Labb2test.Products
                                          new Product("Äpple", 4),
                                          new Product("Penna (lång)", 30)};
         }
+  
         public override string ToString()
         {
             return $"{ProductName}\t{ProductPrice}:-";

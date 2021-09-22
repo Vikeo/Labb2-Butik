@@ -89,9 +89,6 @@ namespace Labb2test
                 $"\n3. Gå till kassan och betala" +
                 $"\n4. Logga ut");
 
-            //TEMPALL RAD SOM SKA TAS BORT
-            Console.WriteLine($"\n\n{_loggedInCustomer.ToString()}");
-
             switch (Console.ReadLine())
             {
                 case "1":
@@ -184,9 +181,6 @@ namespace Labb2test
             Console.Clear();
             Console.WriteLine("Din kundvagn:");
 
-
-            //Skriv ut Antalet, namnet och sammanlagda priset.
-
             foreach (var product in _loggedInCustomer.Cart)
             {
                 if (product.ProductQuantity != 0)
@@ -194,8 +188,6 @@ namespace Labb2test
                     Console.Write(product.ToString());
                 }
             }
-
-
 
             Console.WriteLine($"\nDen totala summan i SEK är: {_loggedInCustomer.CartSumInSEK} kr\n");
 
@@ -343,6 +335,7 @@ namespace Labb2test
 
             Membership newMembership = Membership.NonMember;
             bool continueLoop = true;
+
             while (continueLoop)
             {
                 switch (Console.ReadLine())
@@ -482,7 +475,6 @@ namespace Labb2test
                         default:
                             break;
                     }
-
                 }
             }
         }

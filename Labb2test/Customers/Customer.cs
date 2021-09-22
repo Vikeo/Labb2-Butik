@@ -35,7 +35,6 @@ namespace Labb2test.Customers
         }
 
         private int _cartQuanity;
-
         public int CartQuantity
         {
             get { return _cartQuanity; }
@@ -43,7 +42,6 @@ namespace Labb2test.Customers
         }
 
         private Membership _membership;
-
         public Membership Membership
         {
             get { return _membership; }

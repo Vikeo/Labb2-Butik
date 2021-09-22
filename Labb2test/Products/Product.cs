@@ -22,7 +22,6 @@ namespace Labb2test.Products
         }
 
         private int _productQuanity;
-
         public int ProductQuantity
         {
             get { return _productQuanity; }
@@ -36,6 +35,7 @@ namespace Labb2test.Products
             ProductQuantity = 1;
 
         }
+
         public static List<Product> GenerateListOfProducts()
         {
             return new List<Product>() { new Product("Penna", 5),
@@ -48,6 +48,7 @@ namespace Labb2test.Products
         {
             return $"{ProductQuantity}st {ProductName,-12}{ProductPrice * ProductQuantity,13:C}\n";
         }
+
         public string ToString(string userInput)
         {
             switch (userInput)

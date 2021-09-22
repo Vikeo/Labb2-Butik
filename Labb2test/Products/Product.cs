@@ -67,7 +67,6 @@ namespace Labb2test.Products
             }
         }
 
-        //DRY??????
         public static double ConvertSumPriceInEUR(double priceInSEK)
         {
             var conversionRate = 0.0984775f;

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Labb2test.Products;
+using System;
 using System.Collections.Generic;
-using Labb2test.Products;
 
 namespace Labb2test.Customers
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Labb2test.Customers
+﻿namespace Labb2test.Customers
 {
     class GoldCustomer : Customer
     {

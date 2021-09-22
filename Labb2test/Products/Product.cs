@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace Labb2test.Products
 {
-    
+
     class Product
     {
         private string _productName;
@@ -34,7 +34,7 @@ namespace Labb2test.Products
             ProductName = productName;
             ProductPrice = productPrice;
             ProductQuantity = 1;
-            
+
         }
         public static List<Product> GenerateListOfProducts()
         {
@@ -43,26 +43,26 @@ namespace Labb2test.Products
                                          new Product("Äpple", 4),
                                          new Product("Penna (lång)", 30)};
         }
-  
+
         public string ToString()
         {
-            return $"{ProductQuantity}st {ProductName,-15:C}{ProductPrice * ProductQuantity,10:C}\n";
+            return $"{ProductQuantity}st {ProductName,-12}{ProductPrice * ProductQuantity,13:C}\n";
         }
         public string ToString(string userInput)
         {
             switch (userInput)
             {
                 case "SEK":
-                    return $"{ProductName,-15:C}{ProductPrice.ToString("C", CultureInfo.CreateSpecificCulture("sv-SE")),10}\n";
+                    return $"{ProductName,-12:C}{ProductPrice.ToString("C", CultureInfo.CreateSpecificCulture("sv-SE")),13}\n";
 
                 case "EUR":
-                    return $"{ProductName,-15:C}{ConvertSumPriceInJPY(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")),10}\n";
+                    return $"{ProductName,-12:C}{ConvertSumPriceInJPY(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")),13}\n";
 
                 case "JPY":
-                    return $"{ProductName,-15:C}{ConvertSumPriceInJPY(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("ja-JP")),10}\n";
+                    return $"{ProductName,-20:C}{ConvertSumPriceInJPY(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("ja-JP")),-10}\n";
 
                 default:
-                    return $"{ProductName,-15:C}{ProductPrice,10:C}\n";
+                    return $"{ProductName,-12:C}{ProductPrice,10:C}\n";
             }
         }
 

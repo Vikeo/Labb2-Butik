@@ -3,7 +3,6 @@ using Labb2test.Products;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Labb2test
 {
@@ -122,7 +121,7 @@ namespace Labb2test
             Console.WriteLine("Handla\n\nVälj något som du vill lägga till i kundvagnen. En vara åt gången. " +
                 "\nDu kan byta valuta med genom att skriva SEK, EUR eller JPY\n");
             int itemNumber = 0;
-            
+
             foreach (var product in _products)
             {
                 itemNumber++;
@@ -179,12 +178,12 @@ namespace Labb2test
                 Console.ReadLine();
             }
         }
-        
+
         private static void PrintCart()
         {
             Console.Clear();
             Console.WriteLine("Din kundvagn:");
-            
+
 
             //Skriv ut Antalet, namnet och sammanlagda priset.
 
@@ -211,41 +210,39 @@ namespace Labb2test
 
         private static void AddProductToCart(string userInput)
         {
-            Product productToCart;
-            productToCart = new Product(_products[int.Parse(userInput) - 1].ProductName, _products[int.Parse(userInput) - 1].ProductPrice);
-
-            
-
-            //Kolla igenom loggincustomer.Cart för att se om produkten redan ligger där inne.
-            //Om den ligger där inne, lägg inte till produkt, men lägg till en på quantity.
-            
-
+            Product newProductToCart;
+            newProductToCart = new Product(_products[int.Parse(userInput) - 1].ProductName, _products[int.Parse(userInput) - 1].ProductPrice);
 
             int loopCount = 0;
-            //_loggedInCustomer.Cart.IndexOf(productToCart)
+
+            //För varje produkt i kundens kundvagn
             foreach (var product in _loggedInCustomer.Cart)
             {
-                if (product.ProductName == productToCart.ProductName)
+                //om det finns en produkt med samma namn i kundvagnen
+                if (product.ProductName == newProductToCart.ProductName)
                 {
+                    //ge lägg till en till sån (+1 quantity på denna produkt)
                     product.ProductQuantity += 1;
-                    _loggedInCustomer.CartSumInSEK += productToCart.ProductPrice;
+                    //Lägg till den tillagda produktens pris till totalsumman.
+                    _loggedInCustomer.CartSumInSEK += newProductToCart.ProductPrice;
                     break;
                 }
                 loopCount++;
             }
+            //om loopen har gåt igenom alla kunder utan att hitta en produkt med samma namn som den man vill lägga till
             if (loopCount == _loggedInCustomer.Cart.Count)
             {
-                _loggedInCustomer.Cart.Add(productToCart);
-                _loggedInCustomer.CartSumInSEK += productToCart.ProductPrice;
+                //lägg till den som en ny produkt.
+                _loggedInCustomer.Cart.Add(newProductToCart);
+                _loggedInCustomer.CartSumInSEK += newProductToCart.ProductPrice;
             }
 
+            //tror inte detta behövs, man kommer aldrig komma hit med Cart.Count = 0. (Om loopCount och Cart.Count = 0 så går den in i den ovanför.)
             else if (_loggedInCustomer.Cart.Count == 0)
             {
-                _loggedInCustomer.Cart.Add(productToCart);
-                _loggedInCustomer.CartSumInSEK += productToCart.ProductPrice;
+                _loggedInCustomer.Cart.Add(newProductToCart);
+                _loggedInCustomer.CartSumInSEK += newProductToCart.ProductPrice;
             }
-
-            
         }
 
         private static void LoginCustomer()
@@ -274,7 +271,7 @@ namespace Labb2test
                     Console.WriteLine($"Kunden {loginUsername} finns inte i våran databas, " +
                         $"eller så har du skrivit fel." +
                         $"\nVill du registrera dig som ny kund eller försöka igen?");
-                    
+
                     Console.WriteLine("\n1. Registrera som ny kund" +
                                       "\n2. Försök igen " +
                                       "\n3. Gå tillbaka till huvudmenyn");
@@ -318,7 +315,7 @@ namespace Labb2test
             }
             return false;
         }
-        
+
         public static void GenerateCustomer()
         {
             Console.Clear();
@@ -369,7 +366,7 @@ namespace Labb2test
                         break;
                 }
             }
-            
+
             if (newUsername == "" || newPassword == "")
             {
                 Console.WriteLine("\nAnvändarnamnet eller lösenordet är tomt. Försök igen");
@@ -377,7 +374,7 @@ namespace Labb2test
                 return;
             }
 
-            else if(!isDuplicateUsername)
+            else if (!isDuplicateUsername)
             {
                 AddNewCustomerBasedOnMembership(newUsername, newPassword, newMembership);
             }
@@ -499,7 +496,7 @@ namespace Labb2test
         private static void QuitApplication()
         {
             Console.Clear();
-            
+
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "CustomersViktor.txt")))
             {
                 foreach (var customer in _allCustomers)

@@ -34,6 +34,14 @@ namespace Labb2test.Customers
             set { _cartSum = value; }
         }
 
+        private int _cartQuanity;
+
+        public int CartQuantity
+        {
+            get { return _cartQuanity; }
+            set { _cartQuanity = value; }
+        }
+
         private Membership _membership;
 
         public Membership Membership
@@ -47,6 +55,7 @@ namespace Labb2test.Customers
             this.Password = password;
             this._cart = new List<Product>();
             this.CartSumInSEK = 0;
+            CartQuantity = 0;
         }
 
         public override string ToString()

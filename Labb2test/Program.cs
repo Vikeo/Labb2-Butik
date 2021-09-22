@@ -3,6 +3,7 @@ using Labb2test.Products;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Labb2test
 {
@@ -14,7 +15,6 @@ namespace Labb2test
         private static List<Product> _products = Product.GenerateListOfProducts();
         private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private static string _userChoosenCurrency = "SEK";
-        private static int _
 
         enum MenuState
         {
@@ -213,12 +213,39 @@ namespace Labb2test
         {
             Product productToCart;
             productToCart = new Product(_products[int.Parse(userInput) - 1].ProductName, _products[int.Parse(userInput) - 1].ProductPrice);
-            _loggedInCustomer.Cart.Add(productToCart);
+
             
-            //userInput ger inte rätt index för att hitta rätt grej i cart
-            _loggedInCustomer.Cart[int.Parse(userInput) - 1].ProductQuantity += 1;
+
+            //Kolla igenom loggincustomer.Cart för att se om produkten redan ligger där inne.
+            //Om den ligger där inne, lägg inte till produkt, men lägg till en på quantity.
             
-            _loggedInCustomer.CartSumInSEK += _products[int.Parse(userInput) - 1].ProductPrice;
+
+
+            int loopCount = 0;
+            //_loggedInCustomer.Cart.IndexOf(productToCart)
+            foreach (var product in _loggedInCustomer.Cart)
+            {
+                if (product.ProductName == productToCart.ProductName)
+                {
+                    product.ProductQuantity += 1;
+                    _loggedInCustomer.CartSumInSEK += productToCart.ProductPrice;
+                    break;
+                }
+                loopCount++;
+            }
+            if (loopCount == _loggedInCustomer.Cart.Count)
+            {
+                _loggedInCustomer.Cart.Add(productToCart);
+                _loggedInCustomer.CartSumInSEK += productToCart.ProductPrice;
+            }
+
+            else if (_loggedInCustomer.Cart.Count == 0)
+            {
+                _loggedInCustomer.Cart.Add(productToCart);
+                _loggedInCustomer.CartSumInSEK += productToCart.ProductPrice;
+            }
+
+            
         }
 
         private static void LoginCustomer()

@@ -33,7 +33,7 @@ namespace Labb2test.Products
         {
             ProductName = productName;
             ProductPrice = productPrice;
-            ProductQuantity = 0;
+            ProductQuantity = 1;
             
         }
         public static List<Product> GenerateListOfProducts()

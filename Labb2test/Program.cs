@@ -169,8 +169,8 @@ namespace Labb2test
                 Console.WriteLine($"Tack för köpet! " +
                     $"\nDu är en {_loggedInCustomer.Membership}-kund, så det kostade dig {calculatedSum}kr (istället för {_loggedInCustomer.CartSumInSEK}kr)");
                 _loggedInCustomer.Cart.Clear();
+                _loggedInCustomer.CartSumInSEK = 0;
                 Console.ReadLine();
-                QuitApplication();
             }
             else
             {
@@ -398,7 +398,7 @@ namespace Labb2test
         {
             if (!File.Exists(_docPath))
             {
-                using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "Customers.txt")))
+                using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "CustomersViktor.txt")))
                 {
                     var predefinedCustomers = new List<Customer>() { new GoldCustomer("Knatte", "123", Membership.Gold),
                                                                      new SilverCustomer("Fnatte", "321", Membership.Silver),
@@ -411,7 +411,7 @@ namespace Labb2test
                 }
             }
 
-            using (var sr = new StreamReader(Path.Combine(_docPath, "Customers.txt")))
+            using (var sr = new StreamReader(Path.Combine(_docPath, "CustomersViktor.txt")))
             {
                 var text = sr.ReadToEnd();
                 //var textLine = sr.ReadLine();   //Coolare/Bättre??
@@ -461,7 +461,7 @@ namespace Labb2test
         {
             Console.Clear();
             
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "Customers.txt")))
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "CustomersViktor.txt")))
             {
                 foreach (var customer in _allCustomers)
                 {

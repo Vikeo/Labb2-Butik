@@ -17,11 +17,11 @@ namespace Labb2test.Customers
             set { _username = value; }
         }
 
-        private string _password;
-        private string Password
+        public string _password;
+        public string Password
         {
             get { return _password; }
-            set { _password = value; }
+            private set { _password = value; }
         }
 
         private List<Product> _cart;

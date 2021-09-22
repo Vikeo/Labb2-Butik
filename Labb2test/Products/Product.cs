@@ -4,6 +4,7 @@ using System.Globalization;
 
 namespace Labb2test.Products
 {
+    
     class Product
     {
         private string _productName;
@@ -19,10 +20,21 @@ namespace Labb2test.Products
             get { return _productPrice; }
             set { _productPrice = value; }
         }
+
+        private int _productQuanity;
+
+        public int ProductQuantity
+        {
+            get { return _productQuanity; }
+            set { _productQuanity = value; }
+        }
+
         public Product(string productName, double productPrice)
         {
             ProductName = productName;
             ProductPrice = productPrice;
+            ProductQuantity = 0;
+            
         }
         public static List<Product> GenerateListOfProducts()
         {
@@ -34,7 +46,7 @@ namespace Labb2test.Products
   
         public string ToString()
         {
-            return $"{ProductName,-15:C}{ProductPrice,10:C}\n";
+            return $"{ProductQuantity}st {ProductName,-15:C}{ProductPrice * ProductQuantity,10:C}\n";
         }
         public string ToString(string userInput)
         {

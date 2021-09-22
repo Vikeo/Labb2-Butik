@@ -53,9 +53,12 @@ namespace Labb2test.Customers
         {
             string jointString = "";
 
-            foreach (var item in Cart)
+            foreach (var product in Cart)
             {
-                jointString += item.ToString();
+                if (product.ProductQuantity != 0)
+                {
+                    jointString += product.ToString();
+                }
             }
 
             return String.Format($"Användarnamn: {Username}" +

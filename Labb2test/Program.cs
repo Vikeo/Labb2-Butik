@@ -14,6 +14,7 @@ namespace Labb2test
         private static List<Product> _products = Product.GenerateListOfProducts();
         private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private static string _userChoosenCurrency = "SEK";
+        private static int _
 
         enum MenuState
         {
@@ -183,13 +184,20 @@ namespace Labb2test
         {
             Console.Clear();
             Console.WriteLine("Din kundvagn:");
-            var itemCounter = 0;
             
+
+            //Skriv ut Antalet, namnet och sammanlagda priset.
+
             foreach (var product in _loggedInCustomer.Cart)
             {
-                Console.Write(product.ToString());
-                itemCounter++;
+                if (product.ProductQuantity != 0)
+                {
+                    Console.Write(product.ToString());
+                }
             }
+
+
+
             Console.WriteLine($"\nDen totala summan i SEK är: {_loggedInCustomer.CartSumInSEK} kr\n");
 
             Console.WriteLine($"I Euro: {Product.ConvertSumPriceInEUR(_loggedInCustomer.CartSumInSEK)}");
@@ -206,6 +214,10 @@ namespace Labb2test
             Product productToCart;
             productToCart = new Product(_products[int.Parse(userInput) - 1].ProductName, _products[int.Parse(userInput) - 1].ProductPrice);
             _loggedInCustomer.Cart.Add(productToCart);
+            
+            //userInput ger inte rätt index för att hitta rätt grej i cart
+            _loggedInCustomer.Cart[int.Parse(userInput) - 1].ProductQuantity += 1;
+            
             _loggedInCustomer.CartSumInSEK += _products[int.Parse(userInput) - 1].ProductPrice;
         }
 

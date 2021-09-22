@@ -57,7 +57,7 @@ namespace Labb2test.Products
                     return $"{ProductName,-12:C}{ProductPrice.ToString("C", CultureInfo.CreateSpecificCulture("sv-SE")),13}\n";
 
                 case "EUR":
-                    return $"{ProductName,-12:C}{ConvertSumPriceInJPY(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")),13}\n";
+                    return $"{ProductName,-12:C}{ConvertSumPriceInEUR(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")),13}\n";
 
                 case "JPY":
                     return $"{ProductName,-20:C}{ConvertSumPriceInJPY(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("ja-JP")),-10}\n";

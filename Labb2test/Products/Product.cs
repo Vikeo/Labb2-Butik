@@ -44,11 +44,13 @@ namespace Labb2test.Products
                                          new Product("Penna (lång)", 30)};
         }
 
+        //ToString som skrivers ut när man bara vill skriva ut en produkt.
         public string ToString()
         {
             return $"\t{ProductQuantity}st {ProductName,-12}{ProductPrice * ProductQuantity,13:C} (styckpris: {ProductPrice} kr)\n";
         }
 
+        //ToString för när man vill kunna ändra valutan som skrivs ut på¨produkten.
         public string ToString(string userInput)
         {
             switch (userInput)

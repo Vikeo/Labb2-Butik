@@ -120,6 +120,7 @@ namespace Labb2test
                 "\nDu kan byta valuta med genom att skriva SEK, EUR eller JPY\n");
             int itemNumber = 0;
 
+            //För varje produkt i produkt listan, skriv ut namn och pris (baserat på vad användaren vill ha för valuta)
             foreach (var product in _products)
             {
                 itemNumber++;
@@ -136,7 +137,8 @@ namespace Labb2test
                 case "4":
                     AddProductToCart(userInput);
                     break;
-
+                    
+                    //Om listan med produkter uttökas måste denna case ändras till antal produkter + 1.
                 case "5":
                     _menuState = MenuState.LoggedIn;
                     break;
@@ -160,7 +162,7 @@ namespace Labb2test
 
         private static void Checkout()
         {
-            
+            //Skriver ut hur mycket det kostade och rensar kundvagnen
             Console.Clear();
             if (_loggedInCustomer.Cart.Count != 0)
             {
@@ -202,10 +204,13 @@ namespace Labb2test
 
                 Console.WriteLine($"I Euro: {Product.ConvertSumPriceInEUR(_loggedInCustomer.CartSumInSEK)}");
                 Console.WriteLine($"I Yen: {Product.ConvertSumPriceInJPY(_loggedInCustomer.CartSumInSEK)}");
+
                 double calculatedSum = _loggedInCustomer.CalculateSumBasedOnMembership(_loggedInCustomer.CartSumInSEK);
+
                 Console.WriteLine($"\nMed {_loggedInCustomer.Membership}-medlemskap kostar det: {calculatedSum} kr");
 
                 Console.WriteLine("\nTryck ENTER för att gå tillbaka.");
+
                 Console.ReadLine();
             }
             
@@ -335,11 +340,15 @@ namespace Labb2test
         public static void GenerateCustomer()
         {
             Console.Clear();
+
+            //Be om nytt användarnamn, lösenord och medlemskap
             Console.WriteLine("Vänligen skriv ditt önskade Användarnamn och sedan Lösenord, " +
                 "samt vilket medlemskap du vill ha." +
                 "\n(Brons = 5% rabatt, Silver = 10% rabatt, Guld = 15% rabbat.\n");
             Console.Write("Användarnamn: ");
             string newUsername = Console.ReadLine().Replace(" ", "");
+
+            //Kolla om användarnamnet redan finns registrerat
             bool isDuplicateUsername = CheckIfUsernameExists(newUsername);
             if (isDuplicateUsername)
             {
@@ -359,7 +368,8 @@ namespace Labb2test
 
             Membership newMembership = Membership.NonMember;
             bool continueLoop = true;
-
+            
+            //loop som ser till att användaren skriver 1, 2 ellet 3
             while (continueLoop)
             {
                 switch (Console.ReadLine())
@@ -399,6 +409,7 @@ namespace Labb2test
 
         private static bool CheckIfUsernameExists(string username)
         {
+            //för varje kund i kundlistan, kolla om det nya användarnamnet är samma som ett som finns.
             foreach (var customer in _allCustomers)
             {
                 if (username == customer.Username)

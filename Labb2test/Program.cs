@@ -160,6 +160,7 @@ namespace Labb2test
 
         private static void Checkout()
         {
+            
             Console.Clear();
             if (_loggedInCustomer.Cart.Count != 0)
             {
@@ -180,25 +181,35 @@ namespace Labb2test
         private static void PrintCart()
         {
             Console.Clear();
-            Console.WriteLine("Din kundvagn:");
-
-            foreach (var product in _loggedInCustomer.Cart)
+            if (_loggedInCustomer.Cart.Count == 0)
             {
-                if (product.ProductQuantity != 0)
+                Console.WriteLine("Lägg till något i kundvagnen först");
+                Console.ReadLine();
+            }  
+            
+            else 
+            {
+                Console.WriteLine("Din kundvagn:");
+
+                foreach (var product in _loggedInCustomer.Cart)
                 {
-                    Console.Write(product.ToString());
+                    if (product.ProductQuantity != 0)
+                    {
+                        Console.Write(product.ToString());
+                    }
                 }
+                Console.WriteLine($"\nDen totala summan i SEK är: {_loggedInCustomer.CartSumInSEK} kr\n");
+
+                Console.WriteLine($"I Euro: {Product.ConvertSumPriceInEUR(_loggedInCustomer.CartSumInSEK)}");
+                Console.WriteLine($"I Yen: {Product.ConvertSumPriceInJPY(_loggedInCustomer.CartSumInSEK)}");
+                double calculatedSum = _loggedInCustomer.CalculateSumBasedOnMembership(_loggedInCustomer.CartSumInSEK);
+                Console.WriteLine($"\nMed {_loggedInCustomer.Membership}-medlemskap kostar det: {calculatedSum} kr");
+
+                Console.WriteLine("\nTryck ENTER för att gå tillbaka.");
+                Console.ReadLine();
             }
+            
 
-            Console.WriteLine($"\nDen totala summan i SEK är: {_loggedInCustomer.CartSumInSEK} kr\n");
-
-            Console.WriteLine($"I Euro: {Product.ConvertSumPriceInEUR(_loggedInCustomer.CartSumInSEK)}");
-            Console.WriteLine($"I Yen: {Product.ConvertSumPriceInJPY(_loggedInCustomer.CartSumInSEK)}");
-            double calculatedSum = _loggedInCustomer.CalculateSumBasedOnMembership(_loggedInCustomer.CartSumInSEK);
-            Console.WriteLine($"\nMed {_loggedInCustomer.Membership}-medlemskap kostar det: {calculatedSum} kr");
-
-            Console.WriteLine("\nTryck ENTER för att gå tillbaka.");
-            Console.ReadLine();
         }
 
         private static void AddProductToCart(string userInput)
@@ -439,7 +450,7 @@ namespace Labb2test
         private static void FetchSavedCustomers()
         {
             //Om det inte finns en textfil med sparade/fördefinierade kunder
-            if (!File.Exists(_docPath))
+            if (!File.Exists(Path.Combine(_docPath, "CustomersViktor.txt")))
             {
                 //Skapa en textfil
                 using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "CustomersViktor.txt")))

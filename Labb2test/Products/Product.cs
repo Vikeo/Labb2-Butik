@@ -46,7 +46,7 @@ namespace Labb2test.Products
 
         public string ToString()
         {
-            return $"{ProductQuantity}st {ProductName,-12}{ProductPrice * ProductQuantity,13:C}\n";
+            return $"\t{ProductQuantity}st {ProductName,-12}{ProductPrice * ProductQuantity,13:C} (styckpris: {ProductPrice} kr)\n";
         }
 
         public string ToString(string userInput)
@@ -54,16 +54,16 @@ namespace Labb2test.Products
             switch (userInput)
             {
                 case "SEK":
-                    return $"{ProductName,-12:C}{ProductPrice.ToString("C", CultureInfo.CreateSpecificCulture("sv-SE")),13}\n";
+                    return $"\t{ProductName,-12:C}{ProductPrice.ToString("C", CultureInfo.CreateSpecificCulture("sv-SE")),13}\n";
 
                 case "EUR":
-                    return $"{ProductName,-12:C}{ConvertSumPriceInEUR(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")),13}\n";
+                    return $"\t{ProductName,-12:C}{ConvertSumPriceInEUR(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")),13}\n";
 
                 case "JPY":
-                    return $"{ProductName,-20:C}{ConvertSumPriceInJPY(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("ja-JP")),-10}\n";
+                    return $"\t{ProductName,-20:C}{ConvertSumPriceInJPY(ProductPrice).ToString("C", CultureInfo.CreateSpecificCulture("ja-JP")),-10}\n";
 
                 default:
-                    return $"{ProductName,-12:C}{ProductPrice,10:C}\n";
+                    return $"\t{ProductName,-12:C}{ProductPrice,10:C}\n";
             }
         }
 

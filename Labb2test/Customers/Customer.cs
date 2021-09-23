@@ -73,6 +73,7 @@ namespace Labb2test.Customers
                 $"\nKundvagnen innehåller: \n{jointString}");
         }
 
+        //Jämför ett input lösenord med en kunds lösenord.
         public static bool VerifyPassword(string password, Customer customer)
         {
             if (password == customer.Password)

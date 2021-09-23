@@ -8,6 +8,7 @@ namespace Labb2test
 {
     class Program
     {
+        //Field variabler som man ofta behöver komma åt.
         private static MenuState _menuState;
         private static List<Customer> _allCustomers = new List<Customer>();
         private static Customer _loggedInCustomer;
@@ -15,27 +16,26 @@ namespace Labb2test
         private static readonly string _docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private static string _userChoosenCurrency = "SEK";
 
+        //MenuState är det som bestämmer vilken meny som ska rendreras.
         enum MenuState
         {
             Quit, Welcome, LoggedIn, Buying
         }
-        enum SessionState
-        {
-            Active, Terminate
-        }
 
         static void Main(string[] args)
         {
+            //Hämta listan med sparade/fördefinierade kunder
             FetchSavedCustomers();
             Console.OutputEncoding = System.Text.Encoding.Unicode;
 
             _menuState = MenuState.Welcome;
 
-            //Session active
+            //Så länge MenuState inte är Quit så ska denna "masterloop" loopas.
             while (_menuState != MenuState.Quit)
             {
                 Console.Clear();
-                //Menu1 Kanske borde ha if
+
+                //Gå in i rätt meny basaret på MenuState.
                 switch (_menuState)
                 {
                     case MenuState.Welcome:
@@ -59,6 +59,7 @@ namespace Labb2test
             Console.WriteLine("1. Logga in\n2. Registrera dig som ny kund\n3. Avsluta");
             Console.WriteLine($"\nAntal registrerade kunder: {_allCustomers.Count}");
 
+            //Kör en metod baserat på användarens input.
             switch (Console.ReadLine())
             {
                 case "1":
@@ -239,19 +240,27 @@ namespace Labb2test
 
         private static void LoginCustomer()
         {
+            //While loop som gör så att användaren kan välja "försök igen" på vissa ställen.
             bool tryAgain = true;
             while (tryAgain)
             {
                 Console.Clear();
+
+                //Be om användarnamn / löseord
                 Console.WriteLine("Logga in\n");
                 Console.Write("Skriv in ditt användarnamn: ");
                 string loginUsername = Console.ReadLine();
+
                 Console.Write("Skriv in ditt lösenord: ");
                 string loginPassword = Console.ReadLine();
+
+                //Kolla om uppgifterna stämmer
                 bool loginSuccess = CheckIfLoginSuccess(loginUsername, loginPassword);
 
+                //Om allt stämmer överens,
                 if (loginSuccess)
-                {
+                { 
+                    //Ändra MenuState till till LoggedIn
                     Console.Write($"\nDu är nu inloggad som \"{_loggedInCustomer.Username}\"!!");
                     Console.ReadLine();
                     _menuState = MenuState.LoggedIn;
@@ -259,6 +268,7 @@ namespace Labb2test
                 }
                 else
                 {
+                    //Annars, fråga om användaren vill registrera sig, försöka igen eller gå tillbaka
                     Console.Clear();
                     Console.WriteLine($"Kunden {loginUsername} finns inte i våran databas, " +
                         $"eller så har du skrivit fel." +
@@ -268,6 +278,7 @@ namespace Labb2test
                                       "\n2. Försök igen " +
                                       "\n3. Gå tillbaka till huvudmenyn");
 
+                    //Loop så att användaren måste välja 1,2 eller 3.
                     bool continueLoop = true;
                     while (continueLoop)
                     {
@@ -297,8 +308,10 @@ namespace Labb2test
 
         private static bool CheckIfLoginSuccess(string loginUsername, string loginPassword)
         {
+            //För varje registrerad kund, kolla om användarnamnet och lösenordet stämmer överns.
             foreach (var customer in _allCustomers)
-            {
+            {   
+                //Om det stämmer, för så att den matchade kunden är den inloggade kunden.
                 if (Customer.VerifyPassword(loginPassword, customer) && loginUsername == customer.Username)
                 {
                     _loggedInCustomer = customer;
@@ -425,14 +438,18 @@ namespace Labb2test
 
         private static void FetchSavedCustomers()
         {
+            //Om det inte finns en textfil med sparade/fördefinierade kunder
             if (!File.Exists(_docPath))
             {
+                //Skapa en textfil
                 using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "CustomersViktor.txt")))
                 {
+                    //och lägg till de föredefinierade kunderna (Knatte, Fnatte, Tjatte) i en lista
                     var predefinedCustomers = new List<Customer>() { new GoldCustomer("Knatte", "123", Membership.Gold),
                                                                      new SilverCustomer("Fnatte", "321", Membership.Silver),
                                                                      new BronzeCustomer("Tjatte", "213", Membership.Bronze), };
 
+                    //för varje fördefinierad kund, spara den i textfilen
                     foreach (var customer in predefinedCustomers)
                     {
                         outputFile.Write(SaveUser(customer));
@@ -440,17 +457,22 @@ namespace Labb2test
                 }
             }
 
+            //Läs in texfilen med kunder
             using (var sr = new StreamReader(Path.Combine(_docPath, "CustomersViktor.txt")))
             {
+                //Splitta texten på ett specifikt tecken (borde nog vara CSV (;))
                 var text = sr.ReadToEnd();
-                //var textLine = sr.ReadLine();   //Coolare/Bättre??
-                string[] splitText = text.Split('鯨'); //ändra till ,/; ??? (CSV)
+                string[] splitText = text.Split('鯨');
+
+                //För varje split
                 for (int i = 0; i < splitText.Length - 1; i += 3)
                 {
+                    //spara undan namn, lösenord och medlemskap
                     string savedUsername = splitText[i];
                     string savedPassword = splitText[i + 1];
                     Membership savedMembership = Enum.Parse<Membership>(splitText[i + 2]);
 
+                    //Baserat på kundens medlemskap, lägg till i en lista för alla kunder
                     switch (savedMembership)
                     {
                         case Membership.NonMember:
@@ -479,6 +501,7 @@ namespace Labb2test
             }
         }
 
+        //Sparar en specifik kund till textfilen med kunder.
         public static string SaveUser(Customer customer)
         {
             string password = Customer.GetPassword(customer);
@@ -488,7 +511,7 @@ namespace Labb2test
         private static void QuitApplication()
         {
             Console.Clear();
-
+            //Sparar undan alla registrerade kunder, sen stäng ner applikationen.
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(_docPath, "CustomersViktor.txt")))
             {
                 foreach (var customer in _allCustomers)

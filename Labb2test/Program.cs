@@ -67,7 +67,6 @@ namespace Labb2test
                     break;
 
                 case "2":
-
                     GenerateCustomer();
                     break;
 
